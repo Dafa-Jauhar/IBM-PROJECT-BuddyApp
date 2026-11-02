@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BuddyUp — HR/Admin Dashboard</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-icon">B</div>
+      <span class="sidebar-logo-text">BuddyUp</span>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="avatar" id="sidebarAvatar">RT</div>
+      <div>
+        <div class="sidebar-user-name" id="sidebarUserName">Rachel Torres</div>
+        <div class="sidebar-user-role" id="sidebarUserRole">HR / Admin</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <button class="nav-item active" data-section="analytics">
+        <span class="nav-icon">📊</span><span>Analytics</span>
+      </button>
+
+      <div class="nav-section-label" style="margin-top:.5rem;">People</div>
+      <button class="nav-item" data-section="employees">
+        <span class="nav-icon">👤</span><span>Employees</span>
+      </button>
+      <button class="nav-item" data-section="buddies">
+        <span class="nav-icon">🤝</span><span>Buddies</span>
+      </button>
+      <button class="nav-item" data-section="assignments">
+        <span class="nav-icon">🔗</span><span>Assignments</span>
+      </button>
+
+      <div class="nav-section-label" style="margin-top:.5rem;">Content</div>
+      <button class="nav-item" data-section="templates">
+        <span class="nav-icon">📋</span><span>Onboarding Templates</span>
+      </button>
+      <button class="nav-item" data-section="resources">
+        <span class="nav-icon">📚</span><span>Learning Materials</span>
+      </button>
+      <button class="nav-item" data-section="announcements">
+        <span class="nav-icon">📣</span><span>Announcements</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="nav-item logout-btn" style="color:var(--danger);">
+        <span class="nav-icon">🚪</span><span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN ========== -->
+  <div class="main-content">
+    <header class="top-header">
+      <button class="header-hamburger" id="hamburgerBtn">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M3 12h18M3 6h18M3 18h18" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <span class="header-title" id="headerTitle">Analytics</span>
+      <div class="header-actions">
+        <div style="position:relative;">
+          <button class="notification-btn" id="notifBtn">🔔<span class="notif-dot" id="notifDot"></span></button>
+          <div class="notif-panel" id="notifPanel"></div>
+        </div>
+        <button class="header-avatar-btn" onclick="navigateTo('profile')" title="My Profile">
+          <div class="avatar avatar-sm" id="headerAvatar">RT</div>
+          <span class="header-user-name" id="headerUserName">Rachel</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="page-body">
+
+      <!-- ===== ANALYTICS ===== -->
+      <section class="view-section active fade-in" id="section-analytics">
+        <div class="mb-4">
+          <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:.25rem;">Company-Wide Analytics</h2>
+          <p class="text-muted text-sm">Overview of all onboarding activity</p>
+        </div>
+
+        <div class="stat-grid mb-4" id="adminStats"></div>
+
+        <div class="grid-2 mb-4">
+          <!-- Onboarding health chart -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Onboarding Progress by Employee</div>
+            </div>
+            <div class="card-body">
+              <div class="chart-area" id="progressChart"></div>
+              <div class="chart-labels" id="progressChartLabels"></div>
+            </div>
+          </div>
+          <!-- Task completion breakdown -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Task Status Distribution</div>
+            </div>
+            <div class="card-body">
+              <div id="taskStatusChart" style="display:flex;flex-direction:column;gap:.75rem;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Employee status table -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Employee Onboarding Status</div>
+              <button class="btn btn-secondary btn-sm" onclick="navigateTo('employees')">Manage →</button>
+            </div>
+            <div class="card-body" id="empStatusTable"></div>
+          </div>
+          <!-- Recent activity -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">Recent Activity</div></div>
+            <div class="card-body">
+              <div class="timeline" id="activityTimeline"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== EMPLOYEES ===== -->
+      <section class="view-section fade-in" id="section-employees">
+        <div class="mb-4 flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 style="font-size:1.3rem;font-weight:800;">Employee Management</h2>
+            <p class="text-muted text-sm">Manage all new employees and their onboarding</p>
+          </div>
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+            <div class="search-bar" style="width:220px;">
+              <span>🔍</span>
+              <input type="text" id="empSearch" placeholder="Search employees…"/>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('addEmployeeModal')">+ Add Employee</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Department</th>
+                  <th>Start Date</th>
+                  <th>Buddy</th>
+                  <th>Progress</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="employeesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== BUDDIES ===== -->
+      <section class="view-section fade-in" id="section-buddies">
+        <div class="mb-4 flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 style="font-size:1.3rem;font-weight:800;">Buddy Management</h2>
+            <p class="text-muted text-sm">Manage all buddy volunteers and their mentee loads</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('addBuddyModal')">+ Add Buddy</button>
+        </div>
+        <div class="grid-auto" id="buddyManageGrid"></div>
+      </section>
+
+      <!-- ===== ASSIGNMENTS ===== -->
+      <section class="view-section fade-in" id="section-assignments">
+        <div class="mb-4">
+          <h2 style="font-size:1.3rem;font-weight:800;">Buddy Assignments</h2>
+          <p class="text-muted text-sm">Assign or reassign buddies to new employees</p>
+        </div>
+        <div class="grid-2">
+          <!-- Unassigned employees -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Unassigned Employees</div>
+              <span class="badge badge-amber" id="unassignedCount">0</span>
+            </div>
+            <div class="card-body" id="unassignedEmpList"></div>
+          </div>
+          <!-- Assignment form -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">Create Assignment</div></div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Employee</label>
+                <select class="form-control" id="assignEmpSelect"></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Buddy</label>
+                <select class="form-control" id="assignBuddySelect"></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Onboarding Template</label>
+                <select class="form-control" id="assignTemplateSelect"></select>
+              </div>
+              <button class="btn btn-primary btn-block" id="createAssignmentBtn">Create Assignment</button>
+            </div>
+          </div>
+        </div>
+        <!-- Current assignments -->
+        <div class="card" style="margin-top:1.25rem;">
+          <div class="card-header"><div class="card-title">Current Assignments</div></div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Employee</th><th>Department</th><th>Buddy</th><th>Template</th><th>Progress</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="assignmentsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== TEMPLATES ===== -->
+      <section class="view-section fade-in" id="section-templates">
+        <div class="mb-4 flex items-center justify-between">
+          <div>
+            <h2 style="font-size:1.3rem;font-weight:800;">Onboarding Templates</h2>
+            <p class="text-muted text-sm">Manage structured onboarding plans</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('addTemplateModal')">+ New Template</button>
+        </div>
+        <div class="grid-auto" id="templateCards"></div>
+      </section>
+
+      <!-- ===== RESOURCES ===== -->
+      <section class="view-section fade-in" id="section-resources">
+        <div class="mb-4 flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 style="font-size:1.3rem;font-weight:800;">Learning Materials</h2>
+            <p class="text-muted text-sm">Manage resources available to employees</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('addResourceModal')">+ Add Resource</button>
+        </div>
+        <div class="card">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Title</th><th>Type</th><th>Category</th><th>Downloads</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="resourcesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== ANNOUNCEMENTS ===== -->
+      <section class="view-section fade-in" id="section-announcements">
+        <div class="mb-4 flex items-center justify-between">
+          <div>
+            <h2 style="font-size:1.3rem;font-weight:800;">Announcements</h2>
+            <p class="text-muted text-sm">Publish company-wide announcements</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('addAnnouncementModal')">+ New Announcement</button>
+        </div>
+        <div id="adminAnnouncementsList" style="display:flex;flex-direction:column;gap:1rem;max-width:720px;"></div>
+      </section>
+
+      <!-- ===== PROFILE ===== -->
+      <section class="view-section fade-in" id="section-profile">
+        <div class="profile-banner" id="adminProfileBanner"></div>
+        <div class="profile-stats-bar" id="adminProfileStats"></div>
+        <div class="profile-grid">
+          <!-- Left -->
+          <div style="display:flex;flex-direction:column;gap:1.25rem;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Account Details</div>
+                <button class="btn btn-secondary btn-sm" onclick="toggleAdminProfileEdit()">✏️ Edit</button>
+              </div>
+              <div class="card-body" id="adminProfileInfo"></div>
+              <div id="adminProfileEditForm" style="display:none;padding:0 1.4rem 1.4rem;">
+                <div class="divider" style="margin-top:0;"></div>
+                <div class="profile-edit-field">
+                  <label>Display Name</label>
+                  <input type="text" class="form-control" id="adminEditName"/>
+                </div>
+                <div class="profile-edit-field">
+                  <label>Title / Role Description</label>
+                  <input type="text" class="form-control" id="adminEditTitle" placeholder="e.g. Senior HR Business Partner"/>
+                </div>
+                <div class="profile-edit-field">
+                  <label>Phone</label>
+                  <input type="text" class="form-control" id="adminEditPhone" placeholder="+1 (555) 000-0000"/>
+                </div>
+                <div style="display:flex;gap:.75rem;margin-top:.25rem;">
+                  <button class="btn btn-primary btn-sm" onclick="saveAdminProfileEdit()">Save Changes</button>
+                  <button class="btn btn-secondary btn-sm" onclick="toggleAdminProfileEdit()">Cancel</button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Responsibilities</div></div>
+              <div class="card-body" id="adminProfileTags"></div>
+            </div>
+          </div>
+          <!-- Right -->
+          <div style="display:flex;flex-direction:column;gap:1.25rem;">
+            <div class="card">
+              <div class="card-header"><div class="card-title">Platform Overview</div></div>
+              <div class="card-body" id="adminProfileOverview"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Recent Admin Activity</div></div>
+              <div class="card-body">
+                <div class="profile-activity" id="adminProfileActivity"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Add Employee Modal -->
+<div class="modal-overlay" id="addEmployeeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add New Employee</span>
+      <button class="modal-close" onclick="closeModal('addEmployeeModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-control" id="newEmpName" placeholder="e.g. John Doe"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" id="newEmpEmail" placeholder="john@buddyup.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Department</label>
+          <select class="form-control" id="newEmpDept">
+            <option>Engineering</option><option>Marketing</option><option>Product</option>
+            <option>Sales</option><option>Finance</option><option>HR</option><option>Operations</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Start Date</label>
+          <input type="date" class="form-control" id="newEmpStart"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password (temporary)</label>
+        <input type="text" class="form-control" id="newEmpPassword" value="employee123"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addEmployeeModal')">Cancel</button>
+      <button class="btn btn-primary" id="addEmpSubmit">Add Employee</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Employee Modal -->
+<div class="modal-overlay" id="editEmployeeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Edit Employee</span>
+      <button class="modal-close" onclick="closeModal('editEmployeeModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editEmpId"/>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-control" id="editEmpName"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Department</label>
+          <select class="form-control" id="editEmpDept">
+            <option>Engineering</option><option>Marketing</option><option>Product</option>
+            <option>Sales</option><option>Finance</option><option>HR</option><option>Operations</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-control" id="editEmpStatus">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('editEmployeeModal')">Cancel</button>
+      <button class="btn btn-primary" id="editEmpSubmit">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Buddy Modal -->
+<div class="modal-overlay" id="addBuddyModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add Buddy</span>
+      <button class="modal-close" onclick="closeModal('addBuddyModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-control" id="newBuddyName" placeholder="Jane Smith"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" id="newBuddyEmail" placeholder="jane@buddyup.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Department</label>
+          <select class="form-control" id="newBuddyDept">
+            <option>Engineering</option><option>Marketing</option><option>Product</option>
+            <option>Sales</option><option>Finance</option><option>HR</option><option>Operations</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password (temporary)</label>
+          <input type="text" class="form-control" id="newBuddyPassword" value="buddy123"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addBuddyModal')">Cancel</button>
+      <button class="btn btn-primary" id="addBuddySubmit">Add Buddy</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Template Modal -->
+<div class="modal-overlay" id="addTemplateModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Create Onboarding Template</span>
+      <button class="modal-close" onclick="closeModal('addTemplateModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Template Name</label>
+        <input type="text" class="form-control" id="newTplName" placeholder="e.g. Sales Onboarding"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Department</label>
+          <select class="form-control" id="newTplDept">
+            <option>Engineering</option><option>Marketing</option><option>Product</option>
+            <option>Sales</option><option>Finance</option><option>HR</option><option>Operations</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duration (days)</label>
+          <input type="number" class="form-control" id="newTplDuration" value="90"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addTemplateModal')">Cancel</button>
+      <button class="btn btn-primary" id="addTplSubmit">Create Template</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Resource Modal -->
+<div class="modal-overlay" id="addResourceModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add Learning Resource</span>
+      <button class="modal-close" onclick="closeModal('addResourceModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Title</label>
+        <input type="text" class="form-control" id="newResTitle" placeholder="Resource title…"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select class="form-control" id="newResType">
+            <option value="document">Document</option>
+            <option value="video">Video</option>
+            <option value="slides">Slides</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-control" id="newResCat">
+            <option>General</option><option>Engineering</option><option>Marketing</option>
+            <option>Product</option><option>Sales</option><option>Finance</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addResourceModal')">Cancel</button>
+      <button class="btn btn-primary" id="addResSubmit">Add Resource</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Announcement Modal -->
+<div class="modal-overlay" id="addAnnouncementModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">New Announcement</span>
+      <button class="modal-close" onclick="closeModal('addAnnouncementModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Title</label>
+        <input type="text" class="form-control" id="newAnnTitle" placeholder="Announcement title…"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Content</label>
+        <textarea class="form-control" id="newAnnText" rows="3" placeholder="Announcement body…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Posted By</label>
+        <input type="text" class="form-control" id="newAnnBy" placeholder="e.g. HR Team"/>
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:.75rem;">
+        <input type="checkbox" id="newAnnPinned" style="width:16px;height:16px;"/>
+        <label for="newAnnPinned" style="font-size:.88rem;font-weight:500;margin:0;">Pin this announcement</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addAnnouncementModal')">Cancel</button>
+      <button class="btn btn-primary" id="addAnnSubmit">Publish</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal-overlay" id="confirmDeleteModal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <span class="modal-title">Confirm Delete</span>
+      <button class="modal-close" onclick="closeModal('confirmDeleteModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-sm" id="deleteConfirmMsg">Are you sure? This action cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('confirmDeleteModal')">Cancel</button>
+      <button class="btn btn-danger" id="deleteConfirmBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

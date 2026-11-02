@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BuddyUp — New Employee Dashboard</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<div class="app-layout">
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-icon">B</div>
+      <span class="sidebar-logo-text">BuddyUp</span>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="avatar" id="sidebarAvatar">AJ</div>
+      <div>
+        <div class="sidebar-user-name" id="sidebarUserName">Alex Johnson</div>
+        <div class="sidebar-user-role" id="sidebarUserRole">New Employee</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <button class="nav-item active" data-section="overview">
+        <span class="nav-icon">🏠</span><span>Overview</span>
+      </button>
+      <button class="nav-item" data-section="progress">
+        <span class="nav-icon">📊</span><span>My Progress</span>
+      </button>
+      <button class="nav-item" data-section="tasks">
+        <span class="nav-icon">✅</span><span>Tasks</span>
+      </button>
+      <button class="nav-item" data-section="schedule">
+        <span class="nav-icon">📅</span><span>Schedule</span>
+      </button>
+
+      <div class="nav-section-label" style="margin-top:.75rem;">Resources & People</div>
+      <button class="nav-item" data-section="resources">
+        <span class="nav-icon">📚</span><span>Learning Resources</span>
+      </button>
+      <button class="nav-item" data-section="buddy">
+        <span class="nav-icon">🤝</span><span>My Buddy</span>
+      </button>
+      <button class="nav-item" data-section="messages">
+        <span class="nav-icon">💬</span><span>Messages</span>
+        <span class="nav-badge" id="notifNavBadge" style="display:none;">0</span>
+      </button>
+
+      <div class="nav-section-label" style="margin-top:.75rem;">Company</div>
+      <button class="nav-item" data-section="announcements">
+        <span class="nav-icon">📣</span><span>Announcements</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="nav-item logout-btn" style="color:var(--danger);">
+        <span class="nav-icon">🚪</span><span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN ========== -->
+  <div class="main-content">
+    <!-- Top Header -->
+    <header class="top-header">
+      <button class="header-hamburger" id="hamburgerBtn">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M3 12h18M3 6h18M3 18h18" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <span class="header-title" id="headerTitle">Overview</span>
+      <div class="header-actions">
+        <div style="position:relative;">
+          <button class="notification-btn" id="notifBtn">
+            🔔
+            <span class="notif-dot" id="notifDot"></span>
+          </button>
+          <div class="notif-panel" id="notifPanel"></div>
+        </div>
+        <button class="header-avatar-btn" onclick="navigateTo('profile')" title="My Profile">
+          <div class="avatar avatar-sm" id="headerAvatar">AJ</div>
+          <span class="header-user-name" id="headerUserName">Alex</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ========== PAGE BODY ========== -->
+    <main class="page-body">
+
+      <!-- ===== OVERVIEW ===== -->
+      <section class="view-section active fade-in" id="section-overview">
+        <div class="mb-4">
+          <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:.25rem;" id="welcomeMsg">Welcome back, Alex! 👋</h2>
+          <p class="text-muted text-sm" id="welcomeSub">Day 18 of your onboarding journey. You're doing great!</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stat-grid mb-4" id="overviewStats"></div>
+
+        <!-- Main grid -->
+        <div class="grid-2 mb-4" id="overviewGrid">
+          <!-- Progress card -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Onboarding Progress</div>
+                <div class="card-subtitle" id="progressPhaseLabel">Phase 2 of 4</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="navigateTo('progress')">View All →</button>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1.25rem;">
+                <div id="progressRing"></div>
+                <div style="flex:1;">
+                  <div style="font-size:1rem;font-weight:700;margin-bottom:.5rem;" id="progressTitle">Keep it up!</div>
+                  <div class="text-muted text-sm" id="progressDesc">3 of 10 tasks completed</div>
+                  <div style="margin-top:.75rem;" id="phaseProgress"></div>
+                </div>
+              </div>
+              <div id="nextTasksList"></div>
+            </div>
+          </div>
+
+          <!-- Upcoming meetings -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Upcoming Meetings</div>
+                <div class="card-subtitle">With your buddy & team</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="navigateTo('schedule')">Calendar →</button>
+            </div>
+            <div class="card-body" id="upcomingMeetingsList"></div>
+          </div>
+        </div>
+
+        <!-- Second row -->
+        <div class="grid-2">
+          <!-- Buddy card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Your Buddy</div>
+              <button class="btn btn-primary btn-sm" onclick="navigateTo('messages')">💬 Message</button>
+            </div>
+            <div class="card-body" id="buddyCardContent"></div>
+          </div>
+
+          <!-- Announcements -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📣 Announcements</div>
+              <button class="btn btn-secondary btn-sm" onclick="navigateTo('announcements')">All →</button>
+            </div>
+            <div class="card-body" id="announcementsPreview"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PROGRESS ===== -->
+      <section class="view-section fade-in" id="section-progress">
+        <div class="mb-4 flex items-center justify-between">
+          <div>
+            <h2 style="font-size:1.3rem;font-weight:800;">My Onboarding Progress</h2>
+            <p class="text-muted text-sm">Track your journey through all phases</p>
+          </div>
+          <div id="progressHeaderRing"></div>
+        </div>
+        <div id="progressPhasesContainer"></div>
+      </section>
+
+      <!-- ===== TASKS ===== -->
+      <section class="view-section fade-in" id="section-tasks">
+        <div class="mb-4 flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 style="font-size:1.3rem;font-weight:800;">My Tasks</h2>
+            <p class="text-muted text-sm">Complete tasks to advance your onboarding</p>
+          </div>
+          <div class="tabs" id="taskFilterTabs" style="min-width:0;">
+            <button class="tab-btn active" data-filter="all">All</button>
+            <button class="tab-btn" data-filter="pending">Pending</button>
+            <button class="tab-btn" data-filter="submitted">Submitted</button>
+            <button class="tab-btn" data-filter="verified">Verified</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body" id="tasksListContainer"></div>
+        </div>
+      </section>
+
+      <!-- ===== SCHEDULE ===== -->
+      <section class="view-section fade-in" id="section-schedule">
+        <div class="mb-4">
+          <h2 style="font-size:1.3rem;font-weight:800;">My Schedule</h2>
+          <p class="text-muted text-sm">Manage meetings and onboarding sessions</p>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Calendar</div>
+            </div>
+            <div class="card-body">
+              <div id="miniCalendarEmployee"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Meetings</div>
+              <button class="btn btn-primary btn-sm" onclick="openModal('requestMeetingModal')">+ Request</button>
+            </div>
+            <div class="card-body" id="scheduleListEmployee"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== RESOURCES ===== -->
+      <section class="view-section fade-in" id="section-resources">
+        <div class="mb-4 flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 style="font-size:1.3rem;font-weight:800;">Learning Resources</h2>
+            <p class="text-muted text-sm">Materials curated for your onboarding</p>
+          </div>
+          <div class="search-bar" style="width:240px;">
+            <span>🔍</span>
+            <input type="text" id="resourceSearch" placeholder="Search resources…" />
+          </div>
+        </div>
+        <div class="grid-auto" id="resourcesGrid"></div>
+      </section>
+
+      <!-- ===== BUDDY ===== -->
+      <section class="view-section fade-in" id="section-buddy">
+        <div class="mb-4">
+          <h2 style="font-size:1.3rem;font-weight:800;">My Buddy</h2>
+          <p class="text-muted text-sm">Your assigned guide through onboarding</p>
+        </div>
+        <div class="grid-2">
+          <div id="buddyProfileCard"></div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Shared Meetings History</div></div>
+            <div class="card-body" id="buddyMeetingHistory"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MESSAGES ===== -->
+      <section class="view-section fade-in" id="section-messages">
+        <div class="mb-4">
+          <h2 style="font-size:1.3rem;font-weight:800;">Messages</h2>
+          <p class="text-muted text-sm">Chat with your buddy</p>
+        </div>
+        <div class="card" style="max-width:680px;">
+          <div class="card-header" id="chatHeader">
+            <div class="card-title">Conversation</div>
+          </div>
+          <div id="chatMessages" style="padding:1rem 1.4rem;height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:.75rem;background:var(--surface-2);"></div>
+          <div class="card-footer">
+            <div style="display:flex;gap:.75rem;">
+              <input type="text" class="form-control" id="chatInput" placeholder="Type a message…" style="flex:1;" />
+              <button class="btn btn-primary" id="chatSendBtn">Send</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== ANNOUNCEMENTS ===== -->
+      <section class="view-section fade-in" id="section-announcements">
+        <div class="mb-4">
+          <h2 style="font-size:1.3rem;font-weight:800;">Company Announcements</h2>
+          <p class="text-muted text-sm">Stay up to date with company news</p>
+        </div>
+        <div id="announcementsList" style="display:flex;flex-direction:column;gap:1rem;max-width:720px;"></div>
+      </section>
+
+      <!-- ===== PROFILE ===== -->
+      <section class="view-section fade-in" id="section-profile">
+        <!-- Banner -->
+        <div class="profile-banner" id="empProfileBanner"></div>
+        <!-- Stats bar -->
+        <div class="profile-stats-bar" id="empProfileStats"></div>
+        <!-- Main grid -->
+        <div class="profile-grid">
+          <!-- Left: info + edit -->
+          <div style="display:flex;flex-direction:column;gap:1.25rem;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Account Details</div>
+                <button class="btn btn-secondary btn-sm" onclick="toggleProfileEdit()">✏️ Edit</button>
+              </div>
+              <div class="card-body" id="empProfileInfo"></div>
+              <!-- Edit form (hidden by default) -->
+              <div id="empProfileEditForm" style="display:none;padding:0 1.4rem 1.4rem;">
+                <div class="divider" style="margin-top:0;"></div>
+                <div class="profile-edit-field">
+                  <label>Display Name</label>
+                  <input type="text" class="form-control" id="empEditName"/>
+                </div>
+                <div class="profile-edit-field">
+                  <label>About Me</label>
+                  <textarea class="form-control" id="empEditBio" rows="3" placeholder="Tell your team about yourself…"></textarea>
+                </div>
+                <div class="profile-edit-field">
+                  <label>Phone</label>
+                  <input type="text" class="form-control" id="empEditPhone" placeholder="+1 (555) 000-0000"/>
+                </div>
+                <div style="display:flex;gap:.75rem;margin-top:.25rem;">
+                  <button class="btn btn-primary btn-sm" onclick="saveProfileEdit()">Save Changes</button>
+                  <button class="btn btn-secondary btn-sm" onclick="toggleProfileEdit()">Cancel</button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Skills & Interests</div></div>
+              <div class="card-body" id="empProfileTags"></div>
+            </div>
+          </div>
+          <!-- Right: activity + buddy info -->
+          <div style="display:flex;flex-direction:column;gap:1.25rem;">
+            <div class="card">
+              <div class="card-header"><div class="card-title">Onboarding Journey</div></div>
+              <div class="card-body" id="empProfileJourney"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Recent Activity</div></div>
+              <div class="card-body">
+                <div class="profile-activity" id="empProfileActivity"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== MODALS ===== -->
+<!-- Request Meeting Modal -->
+<div class="modal-overlay" id="requestMeetingModal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <span class="modal-title">Request a Meeting</span>
+      <button class="modal-close" onclick="closeModal('requestMeetingModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Meeting Title</label>
+        <input type="text" class="form-control" id="reqMeetTitle" placeholder="e.g. Quick check-in"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input type="date" class="form-control" id="reqMeetDate"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Time</label>
+        <input type="time" class="form-control" id="reqMeetTime"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Duration (minutes)</label>
+        <select class="form-control" id="reqMeetDuration">
+          <option value="15">15 min</option>
+          <option value="30" selected>30 min</option>
+          <option value="45">45 min</option>
+          <option value="60">1 hour</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('requestMeetingModal')">Cancel</button>
+      <button class="btn btn-primary" id="reqMeetSubmitBtn">Send Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- Task Submit Modal -->
+<div class="modal-overlay" id="taskSubmitModal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <span class="modal-title">Submit Task for Verification</span>
+      <button class="modal-close" onclick="closeModal('taskSubmitModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-muted text-sm mb-3" id="taskSubmitName">Task name here</p>
+      <div class="form-group">
+        <label class="form-label">Notes / Proof of completion (optional)</label>
+        <textarea class="form-control" id="taskSubmitNotes" rows="3" placeholder="Briefly describe what you did…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('taskSubmitModal')">Cancel</button>
+      <button class="btn btn-primary" id="taskSubmitConfirmBtn">Submit</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="employee.js"></script>
+</body>
+</html>

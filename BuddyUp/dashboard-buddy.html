@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BuddyUp — Buddy Dashboard</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-icon">B</div>
+      <span class="sidebar-logo-text">BuddyUp</span>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="avatar" id="sidebarAvatar">DC</div>
+      <div>
+        <div class="sidebar-user-name" id="sidebarUserName">David Chen</div>
+        <div class="sidebar-user-role" id="sidebarUserRole">Onboarding Buddy</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <button class="nav-item active" data-section="overview">
+        <span class="nav-icon">🏠</span><span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-section="mentees">
+        <span class="nav-icon">👥</span><span>My Mentees</span>
+      </button>
+      <button class="nav-item" data-section="tasks">
+        <span class="nav-icon">✅</span><span>Task Verification</span>
+        <span class="nav-badge" id="pendingVerifyBadge" style="display:none;">0</span>
+      </button>
+      <button class="nav-item" data-section="schedule">
+        <span class="nav-icon">📅</span><span>Schedule</span>
+      </button>
+
+      <div class="nav-section-label" style="margin-top:.75rem;">Communication</div>
+      <button class="nav-item" data-section="messages">
+        <span class="nav-icon">💬</span><span>Messages</span>
+        <span class="nav-badge" id="notifNavBadge" style="display:none;">0</span>
+      </button>
+      <button class="nav-item" data-section="evaluations">
+        <span class="nav-icon">📋</span><span>Evaluations</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="nav-item logout-btn" style="color:var(--danger);">
+        <span class="nav-icon">🚪</span><span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN ========== -->
+  <div class="main-content">
+    <header class="top-header">
+      <button class="header-hamburger" id="hamburgerBtn">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M3 12h18M3 6h18M3 18h18" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <span class="header-title" id="headerTitle">Dashboard</span>
+      <div class="header-actions">
+        <div style="position:relative;">
+          <button class="notification-btn" id="notifBtn">🔔<span class="notif-dot" id="notifDot"></span></button>
+          <div class="notif-panel" id="notifPanel"></div>
+        </div>
+        <button class="header-avatar-btn" onclick="navigateTo('profile')" title="My Profile">
+          <div class="avatar avatar-sm" id="headerAvatar">DC</div>
+          <span class="header-user-name" id="headerUserName">David</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="page-body">
+
+      <!-- ===== OVERVIEW ===== -->
+      <section class="view-section active fade-in" id="section-overview">
+        <div class="mb-4">
+          <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:.25rem;" id="buddyWelcome">Welcome back, David! 🤝</h2>
+          <p class="text-muted text-sm">Your mentees are counting on you. Here's today's summary.</p>
+        </div>
+        <div class="stat-grid mb-4" id="buddyStats"></div>
+        <div class="grid-2 mb-4">
+          <!-- Mentees summary -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">My Mentees</div>
+              <button class="btn btn-secondary btn-sm" onclick="navigateTo('mentees')">View All →</button>
+            </div>
+            <div class="card-body" id="menteeSummaryList"></div>
+          </div>
+          <!-- Pending verifications -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title" style="display:flex;align-items:center;gap:.5rem;">
+                ⏳ Pending Verifications
+                <span class="badge badge-amber" id="pendingVerifyCount">0</span>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="navigateTo('tasks')">Review →</button>
+            </div>
+            <div class="card-body" id="pendingVerifyList"></div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <!-- Upcoming meetings -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Upcoming Meetings</div>
+              <button class="btn btn-primary btn-sm" onclick="openModal('scheduleMeetingModal')">+ Schedule</button>
+            </div>
+            <div class="card-body" id="buddyUpcomingMeetings"></div>
+          </div>
+          <!-- Quick actions -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">Quick Actions</div></div>
+            <div class="card-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+                <button class="btn btn-secondary" style="flex-direction:column;padding:1rem;height:auto;gap:.4rem;" onclick="navigateTo('tasks')">
+                  <span style="font-size:1.5rem;">✅</span><span style="font-size:.8rem;">Verify Tasks</span>
+                </button>
+                <button class="btn btn-secondary" style="flex-direction:column;padding:1rem;height:auto;gap:.4rem;" onclick="openModal('scheduleMeetingModal')">
+                  <span style="font-size:1.5rem;">📅</span><span style="font-size:.8rem;">Schedule Meet</span>
+                </button>
+                <button class="btn btn-secondary" style="flex-direction:column;padding:1rem;height:auto;gap:.4rem;" onclick="navigateTo('messages')">
+                  <span style="font-size:1.5rem;">💬</span><span style="font-size:.8rem;">Send Message</span>
+                </button>
+                <button class="btn btn-secondary" style="flex-direction:column;padding:1rem;height:auto;gap:.4rem;" onclick="navigateTo('evaluations')">
+                  <span style="font-size:1.5rem;">📋</span><span style="font-size:.8rem;">Add Evaluation</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MENTEES ===== -->
+      <section class="view-section fade-in" id="section-mentees">
+        <div class="mb-4">
+          <h2 style="font-size:1.3rem;font-weight:800;">My Mentees</h2>
+          <p class="text-muted text-sm">Track the progress of each new employee you're guiding</p>
+        </div>
+        <div class="grid-auto" id="menteeCardsGrid"></div>
+      </section>
+
+      <!-- ===== TASK VERIFICATION ===== -->
+      <section class="view-section fade-in" id="section-tasks">
+        <div class="mb-4 flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 style="font-size:1.3rem;font-weight:800;">Task Verification</h2>
+            <p class="text-muted text-sm">Review and verify completed tasks from your mentees</p>
+          </div>
+          <div class="tabs" id="verifyFilterTabs">
+            <button class="tab-btn active" data-filter="all">All</button>
+            <button class="tab-btn" data-filter="submitted">Submitted</button>
+            <button class="tab-btn" data-filter="verified">Verified</button>
+          </div>
+        </div>
+        <div id="verifyTasksContainer"></div>
+      </section>
+
+      <!-- ===== SCHEDULE ===== -->
+      <section class="view-section fade-in" id="section-schedule">
+        <div class="mb-4 flex items-center justify-between">
+          <div>
+            <h2 style="font-size:1.3rem;font-weight:800;">Schedule & Meetings</h2>
+            <p class="text-muted text-sm">Manage your sessions with mentees</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('scheduleMeetingModal')">+ New Meeting</button>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Calendar</div></div>
+            <div class="card-body"><div id="miniCalendarBuddy"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">All Meetings</div></div>
+            <div class="card-body" id="buddyMeetingsList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MESSAGES ===== -->
+      <section class="view-section fade-in" id="section-messages">
+        <div class="mb-4">
+          <h2 style="font-size:1.3rem;font-weight:800;">Messages</h2>
+          <p class="text-muted text-sm">Communicate with your mentees</p>
+        </div>
+        <div class="grid-2">
+          <!-- Conversation list -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">Conversations</div></div>
+            <div class="card-body" id="conversationList"></div>
+          </div>
+          <!-- Chat area -->
+          <div class="card" id="chatAreaCard">
+            <div class="card-header" id="buddyChatHeader"><div class="card-title">Select a conversation</div></div>
+            <div id="buddyChatMessages" style="padding:1rem 1.4rem;height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:.75rem;background:var(--surface-2);"></div>
+            <div class="card-footer">
+              <div style="display:flex;gap:.75rem;">
+                <input type="text" class="form-control" id="buddyChatInput" placeholder="Type a message…" style="flex:1;"/>
+                <button class="btn btn-primary" id="buddyChatSend">Send</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== EVALUATIONS ===== -->
+      <section class="view-section fade-in" id="section-evaluations">
+        <div class="mb-4 flex items-center justify-between">
+          <div>
+            <h2 style="font-size:1.3rem;font-weight:800;">Progress Evaluations</h2>
+            <p class="text-muted text-sm">Document your mentees' progress over time</p>
+          </div>
+          <button class="btn btn-primary" onclick="openNewEvalModal()">+ New Evaluation</button>
+        </div>
+        <div id="evaluationsList"></div>
+      </section>
+
+      <!-- ===== PROFILE ===== -->
+      <section class="view-section fade-in" id="section-profile">
+        <div class="profile-banner" id="buddyProfileBanner"></div>
+        <div class="profile-stats-bar" id="buddyProfileStats"></div>
+        <div class="profile-grid">
+          <!-- Left -->
+          <div style="display:flex;flex-direction:column;gap:1.25rem;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Account Details</div>
+                <button class="btn btn-secondary btn-sm" onclick="toggleBuddyProfileEdit()">✏️ Edit</button>
+              </div>
+              <div class="card-body" id="buddyProfileInfo"></div>
+              <div id="buddyProfileEditForm" style="display:none;padding:0 1.4rem 1.4rem;">
+                <div class="divider" style="margin-top:0;"></div>
+                <div class="profile-edit-field">
+                  <label>Display Name</label>
+                  <input type="text" class="form-control" id="buddyEditName"/>
+                </div>
+                <div class="profile-edit-field">
+                  <label>Bio / Expertise</label>
+                  <textarea class="form-control" id="buddyEditBio" rows="3" placeholder="Your background and expertise…"></textarea>
+                </div>
+                <div class="profile-edit-field">
+                  <label>Phone</label>
+                  <input type="text" class="form-control" id="buddyEditPhone" placeholder="+1 (555) 000-0000"/>
+                </div>
+                <div style="display:flex;gap:.75rem;margin-top:.25rem;">
+                  <button class="btn btn-primary btn-sm" onclick="saveBuddyProfileEdit()">Save Changes</button>
+                  <button class="btn btn-secondary btn-sm" onclick="toggleBuddyProfileEdit()">Cancel</button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Expertise & Skills</div></div>
+              <div class="card-body" id="buddyProfileTags"></div>
+            </div>
+          </div>
+          <!-- Right -->
+          <div style="display:flex;flex-direction:column;gap:1.25rem;">
+            <div class="card">
+              <div class="card-header"><div class="card-title">My Mentees Overview</div></div>
+              <div class="card-body" id="buddyProfileMentees"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Recent Activity</div></div>
+              <div class="card-body">
+                <div class="profile-activity" id="buddyProfileActivity"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== MODALS ===== -->
+<!-- Schedule Meeting Modal -->
+<div class="modal-overlay" id="scheduleMeetingModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Schedule a Meeting</span>
+      <button class="modal-close" onclick="closeModal('scheduleMeetingModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Mentee</label>
+        <select class="form-control" id="meetMenteeSelect"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Meeting Title</label>
+        <input type="text" class="form-control" id="meetTitle" placeholder="e.g. Weekly Check-in"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-control" id="meetType">
+          <option value="checkin">Check-in</option>
+          <option value="technical">Technical Session</option>
+          <option value="learning">Learning Session</option>
+          <option value="review">Progress Review</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" class="form-control" id="meetDate"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Time</label>
+          <input type="time" class="form-control" id="meetTime"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Duration</label>
+        <select class="form-control" id="meetDuration">
+          <option value="15">15 min</option>
+          <option value="30" selected>30 min</option>
+          <option value="45">45 min</option>
+          <option value="60">1 hour</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('scheduleMeetingModal')">Cancel</button>
+      <button class="btn btn-primary" id="scheduleMeetSubmit">Schedule</button>
+    </div>
+  </div>
+</div>
+
+<!-- Evaluation Modal -->
+<div class="modal-overlay" id="evalModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">New Progress Evaluation</span>
+      <button class="modal-close" onclick="closeModal('evalModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Mentee</label>
+        <select class="form-control" id="evalMenteeSelect"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Evaluation Week</label>
+        <select class="form-control" id="evalWeek">
+          <option value="1">Week 1</option><option value="2">Week 2</option>
+          <option value="4">Week 4</option><option value="8">Week 8</option>
+          <option value="12">Week 12</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Attitude (1–5)</label>
+          <input type="number" class="form-control" id="evalAttitude" min="1" max="5" value="4"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Learning Speed (1–5)</label>
+          <input type="number" class="form-control" id="evalLearning" min="1" max="5" value="4"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Teamwork (1–5)</label>
+          <input type="number" class="form-control" id="evalTeamwork" min="1" max="5" value="4"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Overall Progress (1–5)</label>
+          <input type="number" class="form-control" id="evalProgress" min="1" max="5" value="4"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-control" id="evalNotes" rows="3" placeholder="Observations and feedback…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('evalModal')">Cancel</button>
+      <button class="btn btn-primary" id="evalSubmitBtn">Save Evaluation</button>
+    </div>
+  </div>
+</div>
+
+<!-- Verify Task Modal -->
+<div class="modal-overlay" id="verifyTaskModal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <span class="modal-title">Verify Task</span>
+      <button class="modal-close" onclick="closeModal('verifyTaskModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.9rem;margin-bottom:1rem;font-weight:600;" id="verifyTaskTitle">Task title</p>
+      <p class="text-muted text-sm mb-3" id="verifyTaskEmployee">Employee: —</p>
+      <p class="text-sm text-muted">Confirm that you have reviewed this task and it meets the requirements.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('verifyTaskModal')">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="rejectTaskBtn">Reject</button>
+      <button class="btn btn-success" id="confirmVerifyBtn">✓ Verify</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="buddy.js"></script>
+</body>
+</html>
